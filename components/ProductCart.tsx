@@ -1,6 +1,6 @@
-import { Product } from "@/lib/mocks";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
+import { Product } from "@prisma/client";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
@@ -15,7 +15,7 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </div>
       <h3 className="text-lg font-bold mb-2">{product.name}</h3>
-      <p className="text-lg font-bold">{formatPrice(product.price)}</p>
+      <p className="text-lg font-bold">{formatPrice(Number(product.price))}</p>
       <p className="text-sm text-gray-500 mb-4">{product.description}</p>
     </div>
   );

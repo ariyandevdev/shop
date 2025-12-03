@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient } from "../app/generated/prisma/client.js";
+import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -36,6 +36,7 @@ async function main() {
   console.log("Categories created");
 
   const products = [
+    // Electronics (3 products)
     {
       name: "Wireless Bluetooth Headphones",
       description:
@@ -61,7 +62,7 @@ async function main() {
         "https://images.unsplash.com/photo-1609091839311-d5365f5ff1f8?w=500",
       categoryId: electronics.id,
     },
-
+    // Clothing (3 products)
     {
       name: "Classic Cotton T-Shirt",
       description: "Comfortable 100% organic cotton",
@@ -69,6 +70,54 @@ async function main() {
       image:
         "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
       categoryId: clothing.id,
+    },
+    {
+      name: "Denim Jeans",
+      description: "Classic fit denim jeans with stretch comfort",
+      price: 79.99,
+      image: "https://images.unsplash.com/photo-1542272604-787c137553e3?w=500",
+      categoryId: clothing.id,
+    },
+    {
+      name: "Winter Jacket",
+      description: "Waterproof winter jacket with insulated lining",
+      price: 149.99,
+      image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500",
+      categoryId: clothing.id,
+    },
+    // Home & Garden (2 products)
+    {
+      name: "Coffee Maker",
+      description: "Programmable coffee maker with thermal carafe",
+      price: 89.99,
+      image:
+        "https://images.unsplash.com/photo-1517685352821-92cf88aee5a5?w=500",
+      categoryId: home.id,
+    },
+    {
+      name: "LED Desk Lamp",
+      description: "Adjustable LED desk lamp with modern design",
+      price: 39.99,
+      image:
+        "https://images.unsplash.com/photo-1509223197845-458d87318791?w=500",
+      categoryId: home.id,
+    },
+    // Sports & Outdoors (2 products)
+    {
+      name: "Running Shoes",
+      description: "Lightweight running shoes for ultimate comfort",
+      price: 89.99,
+      image:
+        "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500",
+      categoryId: sports.id,
+    },
+    {
+      name: "Yoga Mat",
+      description: "Non-slip yoga mat with carrying strap",
+      price: 34.99,
+      image:
+        "https://images.unsplash.com/photo-1601925260368-ae2f83d02bc4?w=500",
+      categoryId: sports.id,
     },
   ];
 
