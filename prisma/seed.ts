@@ -35,6 +35,14 @@ async function main() {
 
   console.log("Categories created");
 
+  // Helper function to generate slug from name
+  function generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
   const products = [
     // Electronics (3 products)
     {
@@ -121,7 +129,24 @@ async function main() {
     },
   ];
 
-  await prisma.product.createMany({ data: products });
+  // Create products with slugs generated from names
+  for (const product of products) {
+    let slug = generateSlug(product.name);
+    let counter = 1;
+
+    // Ensure slug is unique
+    while (await prisma.product.findUnique({ where: { slug } })) {
+      slug = `${generateSlug(product.name)}-${counter}`;
+      counter++;
+    }
+
+    await prisma.product.create({
+      data: {
+        ...product,
+        slug,
+      },
+    });
+  }
 
   console.log("Seed completed successfully!");
 }
