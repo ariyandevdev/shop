@@ -88,6 +88,7 @@ const ProductPage = async ({
 }) => {
   const { slug } = await params;
   const product = await getProductbySlug(slug);
+  console.log(product);
 
   if (!product) {
     return notFound();
@@ -128,9 +129,20 @@ const ProductPage = async ({
             <div className="space-y-2">
               <h2 className="font-medium">Availability</h2>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-green-600">
-                  In stock
-                </Badge>
+                {product.inventory > 0 ? (
+                  <>
+                    <Badge variant="outline" className="text-green-600">
+                      In stock
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {product.inventory} left
+                    </span>
+                  </>
+                ) : (
+                  <Badge variant="outline" className="text-red-600">
+                    Out of stock
+                  </Badge>
+                )}
               </div>
             </div>
             <Separator className="my-4" />
