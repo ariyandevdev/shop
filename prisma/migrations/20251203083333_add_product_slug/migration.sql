@@ -14,8 +14,8 @@ DECLARE
     new_slug TEXT;
 BEGIN
     FOR product_record IN 
-        SELECT id, slug FROM "Product" WHERE id IN (
-            SELECT id FROM "Product" 
+        SELECT id, slug FROM "Product" WHERE slug IN (
+            SELECT slug FROM "Product" 
             GROUP BY slug HAVING COUNT(*) > 1
         )
     LOOP
