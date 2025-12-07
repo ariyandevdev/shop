@@ -9,10 +9,11 @@ interface AddToCartButtonProps {
     id: string;
     name: string;
     price: number | any;
+    inventory: number;
   };
 }
 
-export function AddToCartButton() {
+export function AddToCartButton({ product }: AddToCartButtonProps) {
   // const [isAdding, setIsAdding] = useState(false);
 
   // const handleAddToCart = async () => {
@@ -24,14 +25,17 @@ export function AddToCartButton() {
   // };
 
   return (
-    <Button
-      // onClick={handleAddToCart}
-      // disabled={isAdding}
-      className="w-full"
-      size="lg"
-    >
-      <ShoppingCart className="mr-2 h-4 w-4" />
-      {/* {isAdding ? "Adding..." : "Add to Cart"} */}
-    </Button>
+    <div>
+      <Button
+        // onClick={handleAddToCart}
+        // disabled={isAdding}
+        disabled={product.inventory === 0}
+        className="w-full"
+        size="lg"
+      >
+        <ShoppingCart className="mr-1 w-4 h-4" />
+        {product.inventory > 0 ? "Add to cart" : "Out of stock"}
+      </Button>
+    </div>
   );
 }

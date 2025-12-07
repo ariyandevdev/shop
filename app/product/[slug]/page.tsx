@@ -146,7 +146,7 @@ const ProductPage = async ({
               </div>
             </div>
             <Separator className="my-4" />
-            <AddToCartButton />
+            <AddToCartButton product={product} />
           </div>
         </CardContent>
       </Card>
