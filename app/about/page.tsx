@@ -1,6 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const metadata: Metadata = {
   title: "About Us - Shop",
@@ -87,6 +96,19 @@ const team = [
 export default function AboutPage() {
   return (
     <main className="container mx-auto p-4 py-8">
+      <Breadcrumb className="mb-6 px-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>About</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       {/* Hero Section */}
       <div className="mb-12">
         <div className="relative w-full h-[300px] md:h-[400px] rounded-lg overflow-hidden mb-8">

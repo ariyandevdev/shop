@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/components/theme-toggle";
 
 const navigationItems = [
   { name: "Home", href: "/" },
@@ -56,8 +57,7 @@ export function Navbar() {
                         <NavigationMenuTrigger
                           className={cn(
                             "text-sm font-medium transition-colors hover:text-primary",
-                            pathname.startsWith(item.href) &&
-                              "text-primary"
+                            pathname.startsWith(item.href) && "text-primary"
                           )}
                         >
                           {item.name}
@@ -106,6 +106,7 @@ export function Navbar() {
 
           {/* Right side icons */}
           <div className="flex items-center space-x-4">
+            <ModeToggle />
             <Button variant="ghost" size="icon" asChild>
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
@@ -182,4 +183,3 @@ export function Navbar() {
     </nav>
   );
 }
-

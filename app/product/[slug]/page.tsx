@@ -6,6 +6,15 @@ import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export async function generateMetadata({
   params,
@@ -96,6 +105,25 @@ const ProductPage = async ({
 
   return (
     <main className="container mx-auto py-4">
+      <Breadcrumb className="mb-6 px-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/products">Products</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{product.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <Card>
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative rounded-lg overflow-hidden h-[200px] md:h-[400px]">
