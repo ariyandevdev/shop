@@ -11,3 +11,16 @@ export async function getProductbySlug(slug: string) {
   });
   return product;
 }
+
+export async function getCategories() {
+  const categories = await prisma.category.findMany({
+    select: {
+      name: true,
+      slug: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+  return categories;
+}

@@ -118,6 +118,18 @@ const ProductPage = async ({
               <Link href="/products">Products</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
+          {product.category && (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/search/${product.category.slug}`}>
+                    {product.category.name}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </>
+          )}
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage>{product.name}</BreadcrumbPage>

@@ -12,33 +12,43 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/theme-toggle";
+import SearchInput from "./search-input";
+import { getCategories } from "@/lib/actions";
 
-const navigationItems = [
-  { name: "Home", href: "/" },
-  { name: "Products", href: "/products" },
-  {
-    name: "Categories",
-    href: "/categories",
-    submenu: [
-      { name: "Electronics", href: "/categories/electronics" },
-      { name: "Clothing", href: "/categories/clothing" },
-      { name: "Home & Garden", href: "/categories/home-garden" },
-      { name: "Sports & Outdoors", href: "/categories/sports-outdoors" },
-    ],
-  },
-  { name: "About", href: "/about" },
-  { name: "Contact", href: "/contact" },
-];
+interface Category {
+  name: string;
+  slug: string;
+}
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    getCategories().then(setCategories);
+  }, []);
+
+  const navigationItems = [
+    { name: "Home", href: "/" },
+    { name: "Products", href: "/products" },
+    {
+      name: "Categories",
+      href: "/search",
+      submenu: categories.map((category) => ({
+        name: category.name,
+        href: `/search/${category.slug}`,
+      })),
+    },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -57,7 +67,7 @@ export function Navbar() {
                         <NavigationMenuTrigger
                           className={cn(
                             "text-sm font-medium transition-colors hover:text-primary",
-                            pathname.startsWith(item.href) && "text-primary"
+                            (item.name === "Categories" && pathname.startsWith("/search/") && pathname !== "/search") && "text-primary"
                           )}
                         >
                           {item.name}
@@ -90,7 +100,7 @@ export function Navbar() {
                         <Link
                           href={item.href}
                           className={cn(
-                            "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
+                            "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-active:bg-accent/50 data-[state=open]:bg-accent/50",
                             pathname === item.href && "bg-accent"
                           )}
                         >
@@ -102,6 +112,10 @@ export function Navbar() {
                 ))}
               </NavigationMenuList>
             </NavigationMenu>
+          </div>
+
+          <div className="block w-full mx-4 md:mx-8">
+            <SearchInput />
           </div>
 
           {/* Right side icons */}
