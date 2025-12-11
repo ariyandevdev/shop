@@ -1,4 +1,4 @@
-import { getProductbySlug } from "@/lib/actions";
+import { getProductbySlug, getCart } from "@/lib/actions";
 import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -97,11 +97,16 @@ const ProductPage = async ({
 }) => {
   const { slug } = await params;
   const product = await getProductbySlug(slug);
-  console.log(product);
+  const cart = await getCart();
 
   if (!product) {
     return notFound();
   }
+
+  // Calculate available inventory (subtract items in cart)
+  const cartQuantity =
+    cart?.items.find((item) => item.productId === product.id)?.quantity || 0;
+  const availableInventory = Math.max(0, product.inventory - cartQuantity);
 
   return (
     <main className="container mx-auto py-4">
@@ -169,13 +174,19 @@ const ProductPage = async ({
             <div className="space-y-2">
               <h2 className="font-medium">Availability</h2>
               <div className="flex items-center gap-2">
-                {product.inventory > 0 ? (
+                {availableInventory > 0 ? (
                   <>
                     <Badge variant="outline" className="text-green-600">
                       In stock
                     </Badge>
                     <span className="text-sm text-muted-foreground">
-                      {product.inventory} left
+                      {availableInventory} available
+                      {cartQuantity > 0 && (
+                        <span className="text-xs">
+                          {" "}
+                          ({cartQuantity} in cart)
+                        </span>
+                      )}
                     </span>
                   </>
                 ) : (
@@ -186,7 +197,19 @@ const ProductPage = async ({
               </div>
             </div>
             <Separator className="my-4" />
-            <AddToCartButton product={product} />
+            <AddToCartButton
+              product={{
+                id: product.id,
+                name: product.name,
+                price:
+                  typeof product.price === "object" && product.price !== null
+                    ? Number(product.price)
+                    : typeof product.price === "number"
+                    ? product.price
+                    : 0,
+                inventory: availableInventory,
+              }}
+            />
           </div>
         </CardContent>
       </Card>

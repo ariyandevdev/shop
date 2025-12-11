@@ -41,6 +41,18 @@ export type ShoppingCart = CartWithProducts & {
   subtotal: number;
 };
 
+// Serialized version for client components (Decimal converted to number, image as string)
+export type SerializedShoppingCart = Omit<ShoppingCart, "items"> & {
+  items: Array<
+    Omit<ShoppingCart["items"][0], "product"> & {
+      product: Omit<ShoppingCart["items"][0]["product"], "price" | "image"> & {
+        price: number;
+        image: string | null;
+      };
+    }
+  >;
+};
+
 export type CartItemWithProduct = Prisma.CartItemGetPayload<{
   include: { product: true };
 }>;
@@ -53,7 +65,7 @@ async function findCartFromCookie(): Promise<CartWithProducts | null> {
     return null;
   }
 
-  return prisma.cart.findUnique({
+  return await prisma.cart.findUnique({
     where: { id: cartId },
     include: {
       items: {
@@ -65,21 +77,32 @@ async function findCartFromCookie(): Promise<CartWithProducts | null> {
   });
 }
 
-export async function getCart(): Promise<ShoppingCart | null> {
+export async function getCart(): Promise<SerializedShoppingCart | null> {
   const cart = await findCartFromCookie();
 
   if (!cart) {
     return null;
   }
 
-  return {
+  // Convert Decimal fields to numbers and ensure all fields are serializable
+  const serializedCart: SerializedShoppingCart = {
     ...cart,
-    size: cart.items.length,
+    items: cart.items.map((item) => ({
+      ...item,
+      product: {
+        ...item.product,
+        price: Number(item.product.price),
+        image: item.product.image ? String(item.product.image) : item.product.image,
+      },
+    })),
+    size: cart.items.reduce((total, item) => total + item.quantity, 0),
     subtotal: cart.items.reduce(
       (total, item) => total + Number(item.product.price) * item.quantity,
       0
     ),
   };
+
+  return serializedCart;
 }
 
 async function getOrCreateCart(): Promise<CartWithProducts> {
@@ -101,4 +124,106 @@ async function getOrCreateCart(): Promise<CartWithProducts> {
   });
 
   return cart;
+}
+
+export async function getCartSize(): Promise<number> {
+  const cartId = (await cookies()).get("cartId")?.value;
+  if (!cartId) {
+    return 0;
+  }
+
+  const cart = await prisma.cart.findUnique({
+    where: { id: cartId },
+    include: {
+      items: true,
+    },
+  });
+
+  if (!cart) {
+    return 0;
+  }
+
+  return cart.items.reduce((total, item) => total + item.quantity, 0);
+}
+
+export async function addToCart(productId: string, quantity: number) {
+  if (quantity <= 0) {
+    throw new Error("Quantity must be greater than 0");
+  }
+  const cart = await getOrCreateCart();
+  const existingitem = await prisma.cartItem.findFirst({
+    where: { cartId: cart.id, productId: productId },
+  });
+  if (existingitem) {
+    await prisma.cartItem.update({
+      where: { id: existingitem.id },
+      data: { quantity: existingitem.quantity + quantity },
+    });
+  } else {
+    await prisma.cartItem.create({
+      data: { cartId: cart.id, productId: productId, quantity: quantity },
+    });
+  }
+  return { success: true };
+}
+
+export async function removeFromCart(cartItemId: string) {
+  await prisma.cartItem.delete({
+    where: { id: cartItemId },
+  });
+  return { success: true };
+}
+
+export async function updateCartItemQuantity(
+  cartItemId: string,
+  quantity: number
+) {
+  if (quantity <= 0) {
+    // If quantity is 0 or less, remove the item
+    await removeFromCart(cartItemId);
+    return { success: true };
+  }
+
+  await prisma.cartItem.update({
+    where: { id: cartItemId },
+    data: { quantity },
+  });
+  return { success: true };
+}
+
+export async function incrementCartItem(cartItemId: string) {
+  const cartItem = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+  });
+
+  if (!cartItem) {
+    throw new Error("Cart item not found");
+  }
+
+  await prisma.cartItem.update({
+    where: { id: cartItemId },
+    data: { quantity: cartItem.quantity + 1 },
+  });
+  return { success: true };
+}
+
+export async function decrementCartItem(cartItemId: string) {
+  const cartItem = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+  });
+
+  if (!cartItem) {
+    throw new Error("Cart item not found");
+  }
+
+  if (cartItem.quantity <= 1) {
+    // Remove item if quantity would be 0
+    await removeFromCart(cartItemId);
+  } else {
+    await prisma.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity: cartItem.quantity - 1 },
+    });
+  }
+  return { success: true };
 }
