@@ -25,7 +25,6 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
     setIsAdding(true);
     try {
       await addToCart(product.id, 1);
-      // Dispatch custom event to update cart count
       window.dispatchEvent(new Event("cartUpdated"));
       router.refresh();
     } catch (error) {

@@ -2,7 +2,6 @@ import { ProductCard } from "@/components/ProductCart";
 import { ProductPagination } from "@/components/ProductPagination";
 import { prisma } from "@/lib/prisma";
 import { Product } from "@prisma/client";
-
 interface HomeProps {
   searchParams:
     | Promise<{
@@ -30,6 +29,7 @@ export default async function Home(props: HomeProps) {
   ]);
 
   const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
+
   return (
     <main className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Home</h1>
