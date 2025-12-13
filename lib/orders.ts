@@ -3,9 +3,14 @@
 import { cookies } from "next/headers";
 import { getCart } from "./actions";
 import { prisma } from "./prisma";
-import { createCheckoutSession } from "./stripe";
+import { OrdersWithItemsAndProducts, createCheckoutSession } from "./stripe";
 
-export async function ProcessCheckout() {
+export type ProcessCheckoutResult = {
+  sessionUrl: string;
+  order: OrdersWithItemsAndProducts;
+};
+
+export async function ProcessCheckout(): Promise<ProcessCheckoutResult | null> {
   const cart = await getCart();
 
   if (!cart || cart.items.length === 0) {
@@ -65,11 +70,14 @@ export async function ProcessCheckout() {
       where: { id: order.id },
       data: {
         stripeSessionId: sessionId,
-        status: "pending",
+        status: "pending_payment",
       },
     });
     (await cookies()).delete("cartId");
-    return order;
+    return {
+      sessionUrl: session.url,
+      order: fullOrder,
+    };
   } catch (error) {
     if (
       orderId &&

@@ -28,9 +28,6 @@ const CartSummary = async () => {
           <span>Total</span>
           <span>{formatPrice(cart.subtotal)}</span>
         </div>
-        <Button asChild className="w-full" size="lg">
-          <Link href="/checkout">Proceed to Checkout</Link>
-        </Button>
       </CardContent>
     </Card>
   );

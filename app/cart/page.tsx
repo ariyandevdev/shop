@@ -3,10 +3,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { CartEntry } from "@/components/CartEntry";
 import CartSummary from "@/components/CartSummary";
+import { Button } from "@/components/ui/button";
+import { ProcessCheckout } from "@/lib/orders";
+import { redirect } from "next/navigation";
+
+async function handleCheckout() {
+  "use server";
+  try {
+    const result = await ProcessCheckout();
+    if (result) {
+      redirect(result.sessionUrl);
+    }
+  } catch (error) {
+    console.error("Checkout error:", error);
+    throw error;
+  }
+}
 
 const CartPage = async () => {
   const cart = await getCart();
-
   if (!cart || cart.items.length === 0) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -41,6 +56,11 @@ const CartPage = async () => {
         ))}
       </div>
       <CartSummary />
+      <form action={handleCheckout}>
+        <Button className="w-full" size="lg">
+          Proceed to Checkout
+        </Button>
+      </form>
     </div>
   );
 };
