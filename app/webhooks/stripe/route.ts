@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const payload = await request.text();
-  const sig = request.headers.get("stripe-signature"); // ✅ FIX
+  const sig = request.headers.get("stripe-signature");
 
   if (!sig) {
     return new NextResponse("Missing stripe-signature header", {
