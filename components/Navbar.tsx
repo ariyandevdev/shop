@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, User, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -18,6 +18,7 @@ import { ModeToggle } from "@/components/theme-toggle";
 import SearchInput from "./search-input";
 import { getCategories } from "@/lib/actions";
 import { CartCount } from "./CartCount";
+import AuthStatus from "./Authstatus";
 
 interface Category {
   name: string;
@@ -132,12 +133,7 @@ export function Navbar() {
                 <span className="sr-only">Shopping cart</span>
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/profile">
-                <User className="h-5 w-5" />
-                <span className="sr-only">User profile</span>
-              </Link>
-            </Button>
+            <AuthStatus />
 
             {/* Mobile menu button */}
             <Button
