@@ -34,3 +34,5 @@ export const RegisterSchema = z
   });
 
 export type SignInSchemaType = z.infer<typeof signInSchema>;
+
+export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
