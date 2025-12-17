@@ -56,6 +56,7 @@ const Signin = () => {
       setIsLoading(false);
     } else if (result && !result.error) {
       await updateSession();
+      setIsLoading(false);
       router.push("/");
       router.refresh();
     } else {

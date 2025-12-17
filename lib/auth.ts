@@ -65,10 +65,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.name = (token.name as string) || (token.email as string); // Use name or email as fallback
-        session.user.role = token.role as string;
+        session.user.id = (token.id as string) || "";
+        session.user.email = (token.email as string) || "";
+        session.user.name =
+          (token.name as string) || (token.email as string) || "";
+        session.user.role = (token.role as string) || "user";
       }
       return session;
     },
