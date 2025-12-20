@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 import { OrderItems } from "./OrderItems";
 import { OrderSummary } from "./OrderSummary";
+import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 
 interface OrderPageProps {
   params: Promise<{
@@ -14,7 +15,13 @@ interface OrderPageProps {
 }
 
 export default async function OrderPage({ params }: OrderPageProps) {
+  const session = await auth();
   const { orderId } = await params;
+
+  // Check authentication
+  if (!session?.user?.id) {
+    redirect(`/auth/signin?callbackUrl=/order/${orderId}`);
+  }
 
   const order = await prisma.order.findUnique({
     where: {
@@ -26,11 +33,26 @@ export default async function OrderPage({ params }: OrderPageProps) {
           product: true,
         },
       },
+      user: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
     },
   });
 
   if (!order) {
     notFound();
+  }
+
+  // Check if user owns this order or is an admin
+  const isOwner = order.userId === session.user.id;
+  const isAdmin = session.user.role === "admin";
+
+  if (!isOwner && !isAdmin) {
+    notFound(); // Return 404 instead of 403 to prevent order ID enumeration
   }
 
   const formatDate = (date: Date) => {
@@ -41,20 +63,6 @@ export default async function OrderPage({ params }: OrderPageProps) {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "completed":
-      case "paid":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
   };
 
   return (
@@ -80,14 +88,7 @@ export default async function OrderPage({ params }: OrderPageProps) {
                   Order ID: {orderId}
                 </p>
               </div>
-              <Badge
-                variant="outline"
-                className={`${getStatusColor(
-                  order.status
-                )} text-sm font-semibold px-3 py-1`}
-              >
-                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-              </Badge>
+              <OrderStatusBadge status={order.status} />
             </div>
           </CardHeader>
           <CardContent>
@@ -100,6 +101,18 @@ export default async function OrderPage({ params }: OrderPageProps) {
                 <p className="text-muted-foreground mb-1">Total Amount</p>
                 <p className="font-bold text-lg">{formatPrice(order.total)}</p>
               </div>
+              {isAdmin && order.user && (
+                <>
+                  <div>
+                    <p className="text-muted-foreground mb-1">Customer</p>
+                    <p className="font-medium">{order.user.name || order.user.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1">Customer Email</p>
+                    <p className="font-medium">{order.user.email}</p>
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>

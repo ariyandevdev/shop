@@ -49,6 +49,7 @@ export async function createCheckoutSession(order: OrdersWithItemsAndProducts) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel?session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
         orderId: order.id,
+        userId: order.userId || "",
       },
     });
     return session;

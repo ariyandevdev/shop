@@ -6,6 +6,7 @@ import CartSummary from "@/components/CartSummary";
 import { Button } from "@/components/ui/button";
 import { ProcessCheckout } from "@/lib/orders";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 async function handleCheckout() {
   "use server";
@@ -16,12 +17,21 @@ async function handleCheckout() {
     }
   } catch (error) {
     console.error("Checkout error:", error);
+    if (
+      error instanceof Error &&
+      error.message.includes("Authentication required")
+    ) {
+      redirect("/auth/signin?callbackUrl=/cart");
+    }
     throw error;
   }
 }
 
 const CartPage = async () => {
   const cart = await getCart();
+  const session = await auth();
+  const isAuthenticated = !!session?.user?.id;
+
   if (!cart || cart.items.length === 0) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -56,11 +66,26 @@ const CartPage = async () => {
         ))}
       </div>
       <CartSummary />
-      <form action={handleCheckout}>
-        <Button className="w-full" size="lg">
-          Proceed to Checkout
-        </Button>
-      </form>
+      {isAuthenticated ? (
+        <form action={handleCheckout}>
+          <Button className="w-full" size="lg">
+            Proceed to Checkout
+          </Button>
+        </form>
+      ) : (
+        <Card className="mt-6">
+          <CardContent className="py-6 text-center">
+            <p className="text-lg font-medium mb-4">
+              Please sign in to complete your purchase
+            </p>
+            <Link href="/auth/signin?callbackUrl=/cart">
+              <Button className="w-full" size="lg">
+                Sign In to Checkout
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

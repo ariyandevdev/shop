@@ -22,13 +22,15 @@ import {
 } from "@/components/ui/form";
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Signin = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { update: updateSession } = useSession();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -57,7 +59,7 @@ const Signin = () => {
     } else if (result && !result.error) {
       await updateSession();
       setIsLoading(false);
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     } else {
       setIsLoading(false);

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { getCart } from "./actions";
 import { prisma } from "./prisma";
 import { OrdersWithItemsAndProducts, createCheckoutSession } from "./stripe";
+import { auth } from "./auth";
 
 export type ProcessCheckoutResult = {
   sessionUrl: string;
@@ -12,9 +13,17 @@ export type ProcessCheckoutResult = {
 
 export async function ProcessCheckout(): Promise<ProcessCheckoutResult | null> {
   const cart = await getCart();
+  const session = await auth();
+  const userId = session?.user?.id;
 
   if (!cart || cart.items.length === 0) {
     throw new Error("Cart not found");
+  }
+
+  if (!session || !userId) {
+    throw new Error(
+      "Authentication required. Please sign in to complete your purchase."
+    );
   }
 
   let orderId: string | null = null;
@@ -24,6 +33,7 @@ export async function ProcessCheckout(): Promise<ProcessCheckoutResult | null> {
       const newOrder = await tx.order.create({
         data: {
           total,
+          userId: userId,
         },
       });
       const orderItems = cart.items.map((item) => ({
@@ -90,5 +100,87 @@ export async function ProcessCheckout(): Promise<ProcessCheckoutResult | null> {
       });
     }
     throw error;
+  }
+}
+
+export type UserOrder = {
+  id: string;
+  status: string;
+  total: number;
+  createdAt: Date;
+  updatedAt: Date;
+  itemsCount: number;
+};
+
+export type GetUserOrdersResult = {
+  orders: UserOrder[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+};
+
+export async function getUserOrders(
+  page: number = 1,
+  pageSize: number = 10
+): Promise<GetUserOrdersResult | null> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  try {
+    const skip = (page - 1) * pageSize;
+
+    // Get total count
+    const totalCount = await prisma.order.count({
+      where: {
+        userId: session.user.id,
+      },
+    });
+
+    // Get orders with item count
+    const orders = await prisma.order.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      select: {
+        id: true,
+        status: true,
+        total: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            items: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: pageSize,
+    });
+
+    const formattedOrders: UserOrder[] = orders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      total: order.total,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      itemsCount: order._count.items,
+    }));
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+      orders: formattedOrders,
+      totalCount,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    return null;
   }
 }

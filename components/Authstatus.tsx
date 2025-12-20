@@ -3,7 +3,7 @@
 import { signOut, useSession } from "next-auth/react";
 import { Skeleton } from "./ui/skeleton";
 import { Button } from "./ui/button";
-import { LogIn, User } from "lucide-react";
+import { LogIn, User, Package } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -51,7 +51,16 @@ export default function AuthStatus() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/account">My Account</Link>
+          <Link href="/account" className="flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            My Account
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/orders" className="flex items-center">
+            <Package className="mr-2 h-4 w-4" />
+            My Orders
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>

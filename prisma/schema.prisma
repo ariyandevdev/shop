@@ -7,19 +7,19 @@ datasource db {
 }
 
 model Product {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   description String
-  price       Decimal    @db.Decimal(10, 2)
+  price       Decimal     @db.Decimal(10, 2)
   image       String
   categoryId  String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  slug        String     @unique
-  inventory   Int        @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  slug        String      @unique
+  inventory   Int         @default(0)
   cartItems   CartItem[]
-  category    Category   @relation(fields: [categoryId], references: [id])
   orderItems  OrderItem[]
+  category    Category    @relation(fields: [categoryId], references: [id])
 }
 
 model Category {
@@ -52,14 +52,16 @@ model CartItem {
 }
 
 model Order {
-  id        String     @id @default(uuid())
-  status    String     @default("pending")
-  total     Float
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  items     OrderItem[]
-  stripeSessionId String?
+  id                    String      @id @default(uuid())
+  status                String      @default("pending")
+  total                 Float
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
   stripePaymentIntentId String?
+  stripeSessionId       String?
+  userId                String?
+  user                  User?       @relation(fields: [userId], references: [id])
+  items                 OrderItem[]
 }
 
 model OrderItem {
@@ -74,13 +76,13 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
 }
 
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  name      String?
   password  String
   role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  name      String?
+  orders    Order[]
 }
