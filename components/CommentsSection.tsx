@@ -7,12 +7,12 @@ import { Separator } from "@/components/ui/separator";
 const CommentsSection = async ({ productId }: { productId: string }) => {
   const comments = await getCommentsByProduct(productId);
   return (
-    <div className="mt-8">
-      <Separator className="my-8" />
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Comments</h2>
-          <p className="text-muted-foreground text-sm">
+    <div className="mt-12 mb-8 px-4">
+      <Separator className="mb-8" />
+      <div className="space-y-8">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-bold tracking-tight">Comments</h2>
+          <p className="text-muted-foreground">
             {comments.length} {comments.length === 1 ? "comment" : "comments"}
           </p>
         </div>

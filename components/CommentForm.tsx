@@ -55,20 +55,22 @@ const CommentForm = ({ productId }: CommentFormProps) => {
   };
 
   return (
-    <Card className="mb-6">
-      <CardContent className="pt-6">
+    <Card>
+      <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Add a comment</FormLabel>
+                  <FormLabel className="text-base font-semibold">
+                    Add a comment
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Share your thoughts about this product..."
-                      className="min-h-[100px]"
+                      className="min-h-[120px] resize-y"
                       {...field}
                     />
                   </FormControl>
@@ -77,11 +79,15 @@ const CommentForm = ({ productId }: CommentFormProps) => {
               )}
             />
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <div className="rounded-md bg-destructive/10 p-3">
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
             )}
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Posting..." : "Post Comment"}
-            </Button>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={isLoading} size="lg">
+                {isLoading ? "Posting..." : "Post Comment"}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
