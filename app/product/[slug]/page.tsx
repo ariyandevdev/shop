@@ -15,6 +15,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import CommentsSection from "@/components/CommentsSection";
 
 export async function generateMetadata({
   params,
@@ -213,6 +214,7 @@ const ProductPage = async ({
           </div>
         </CardContent>
       </Card>
+      <CommentsSection productId={product.id} />
     </main>
   );
 };

@@ -36,3 +36,10 @@ export const RegisterSchema = z
 export type SignInSchemaType = z.infer<typeof signInSchema>;
 
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
+
+export const CommentSchema = z.object({
+  content: z.string().min(3).max(1000),
+  productId: z.string().uuid(),
+});
+
+export type CommentSchemaType = z.infer<typeof CommentSchema>;
