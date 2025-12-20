@@ -20,6 +20,7 @@ model Product {
   cartItems   CartItem[]
   orderItems  OrderItem[]
   category    Category    @relation(fields: [categoryId], references: [id])
+  comments    Comment[]
 }
 
 model Category {
@@ -84,5 +85,17 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String?
-  orders    Order[]
+  orders    Order[] 
+  comments  Comment[]
+}
+
+model Comment{
+  id String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  productId String
+  product Product @relation(fields: [productId], references: [id])
 }

@@ -134,14 +134,18 @@ export async function getUserOrders(
     // Get total count
     const totalCount = await prisma.order.count({
       where: {
-        userId: session.user.id,
+        user: {
+          id: session.user.id,
+        },
       },
     });
 
     // Get orders with item count
     const orders = await prisma.order.findMany({
       where: {
-        userId: session.user.id,
+        user: {
+          id: session.user.id,
+        },
       },
       select: {
         id: true,
