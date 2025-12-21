@@ -1,25 +1,65 @@
 import { ProductCard } from "@/components/ProductCart";
 import { prisma } from "@/lib/prisma";
 import { Product } from "@prisma/client";
+import { ProductPagination } from "./ProductPagination";
 
 interface ProductListProps {
   query?: string;
   sort?: string;
   slug?: string;
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  inStock?: string;
+  page?: string;
+  pageSize?: number;
 }
 
-export async function ProductList({ query, sort, slug }: ProductListProps) {
+export async function ProductList({
+  query,
+  sort,
+  slug,
+  category,
+  minPrice,
+  maxPrice,
+  inStock,
+  page = "1",
+  pageSize = 12,
+}: ProductListProps) {
   const searchQuery = query?.trim() || "";
+  const currentPage = parseInt(page, 10) || 1;
+  const skip = (currentPage - 1) * pageSize;
 
-  // Build where clause for search and category
+  // Build where clause combining all filters
   const where: any = {};
+  const andConditions: any[] = [];
 
+  // Category filter - support both slug (legacy) and category param (new)
   if (slug) {
-    // Filter by category slug
-    where.category = { slug };
-  } else if (searchQuery) {
-    // Filter by search query
-    where.OR = [
+    andConditions.push({ category: { slug } });
+  } else if (category) {
+    const categorySlugs = category.split(",").filter(Boolean);
+    if (categorySlugs.length > 0) {
+      andConditions.push({ category: { slug: { in: categorySlugs } } });
+    }
+  }
+
+  // Price range filter
+  if (minPrice && !isNaN(Number(minPrice))) {
+    andConditions.push({ price: { gte: Number(minPrice) } });
+  }
+  if (maxPrice && !isNaN(Number(maxPrice))) {
+    andConditions.push({ price: { lte: Number(maxPrice) } });
+  }
+
+  // In stock filter
+  if (inStock === "true" || inStock === "1") {
+    andConditions.push({ inventory: { gt: 0 } });
+  }
+
+  // Search query filter
+  if (searchQuery) {
+    const searchConditions = [
       { name: { contains: searchQuery, mode: "insensitive" as const } },
       {
         description: {
@@ -28,6 +68,12 @@ export async function ProductList({ query, sort, slug }: ProductListProps) {
         },
       },
     ];
+    andConditions.push({ OR: searchConditions });
+  }
+
+  // Combine all AND conditions
+  if (andConditions.length > 0) {
+    where.AND = andConditions;
   }
 
   // Build orderBy clause for sorting
@@ -42,22 +88,30 @@ export async function ProductList({ query, sort, slug }: ProductListProps) {
     orderBy = { name: "desc" };
   }
 
-  // Get products
+  // Get total count for pagination
+  const totalCount = await prisma.product.count({ where });
+
+  // Get products with pagination
   const products = await prisma.product.findMany({
     where,
     orderBy,
-    take: 10,
+    skip,
+    take: pageSize,
   });
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   if (products.length === 0) {
     return (
-      <div className="container mx-auto p-4">
+      <div>
         <p className="text-center text-muted-foreground py-8">
           No products found
           {searchQuery
             ? ` for "${searchQuery}"`
             : slug
             ? " in this category"
+            : category
+            ? " matching your filters"
             : ""}
           .
         </p>
@@ -66,20 +120,25 @@ export async function ProductList({ query, sort, slug }: ProductListProps) {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      {searchQuery && (
-        <h1 className="text-2xl font-bold mb-4">
-          Search results for &quot;{searchQuery}&quot;
-        </h1>
-      )}
-      <p className="mb-6 text-muted-foreground">
-        Showing {products.length} product{products.length !== 1 ? "s" : ""}
-      </p>
+    <div className="space-y-6">
+      <div>
+        <p className="text-muted-foreground">
+          Showing {skip + 1}-{Math.min(skip + pageSize, totalCount)} of{" "}
+          {totalCount} product{totalCount !== 1 ? "s" : ""}
+        </p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.map((product: Product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+      {totalPages > 1 && (
+        <ProductPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl="/products"
+        />
+      )}
     </div>
   );
 }

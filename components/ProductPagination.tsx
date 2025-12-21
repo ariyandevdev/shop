@@ -9,6 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useSearchParams } from "next/navigation";
 
 interface ProductPaginationProps {
   currentPage: number;
@@ -21,15 +22,23 @@ export function ProductPagination({
   totalPages,
   baseUrl = "/",
 }: ProductPaginationProps) {
+  const searchParams = useSearchParams();
+
   if (totalPages <= 1) {
     return null;
   }
 
   const getPageUrl = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
     if (page === 1) {
-      return baseUrl;
+      params.delete("page");
+    } else {
+      params.set("page", page.toString());
     }
-    return `${baseUrl}?page=${page}`;
+
+    const queryString = params.toString();
+    return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   };
 
   const pages: (number | "ellipsis")[] = [];
