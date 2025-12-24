@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { addToCart } from "@/lib/actions";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface AddToCartButtonProps {
   product: {
@@ -25,10 +26,12 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
     setIsAdding(true);
     try {
       await addToCart(product.id, 1);
+      toast.success(`${product.name} added to cart!`);
       window.dispatchEvent(new Event("cartUpdated"));
       router.refresh();
     } catch (error) {
       console.error("Failed to add to cart:", error);
+      toast.error("Failed to add item to cart. Please try again.");
     } finally {
       setIsAdding(false);
     }

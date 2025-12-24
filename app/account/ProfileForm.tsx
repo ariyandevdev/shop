@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -34,7 +35,6 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -48,15 +48,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
   const onSubmit = async (data: ProfileFormData) => {
     setError(null);
-    setSuccess(false);
     setIsLoading(true);
 
     const result = await updateProfile(data);
 
     if (result.success) {
-      setSuccess(true);
+      toast.success("Profile updated successfully!");
       router.refresh();
-      setTimeout(() => setSuccess(false), 3000);
     } else {
       setError(result.error || "Failed to update profile");
       if (result.issues) {
@@ -86,11 +84,6 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             {error && (
               <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
                 {error}
-              </div>
-            )}
-            {success && (
-              <div className="rounded-md bg-green-500/15 p-3 text-sm text-green-600 dark:text-green-400">
-                Profile updated successfully!
               </div>
             )}
             <FormField

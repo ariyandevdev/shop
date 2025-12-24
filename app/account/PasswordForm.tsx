@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import toast from "react-hot-toast";
 
 const passwordSchema = z
   .object({
@@ -32,7 +33,6 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export function PasswordForm() {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<PasswordFormData>({
@@ -46,15 +46,13 @@ export function PasswordForm() {
 
   const onSubmit = async (data: PasswordFormData) => {
     setError(null);
-    setSuccess(false);
     setIsLoading(true);
 
     const result = await changePassword(data);
 
     if (result.success) {
-      setSuccess(true);
+      toast.success("Password changed successfully!");
       form.reset();
-      setTimeout(() => setSuccess(false), 3000);
     } else {
       setError(result.error || "Failed to change password");
       if (result.issues) {
@@ -84,11 +82,6 @@ export function PasswordForm() {
             {error && (
               <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
                 {error}
-              </div>
-            )}
-            {success && (
-              <div className="rounded-md bg-green-500/15 p-3 text-sm text-green-600 dark:text-green-400">
-                Password changed successfully!
               </div>
             )}
             <FormField

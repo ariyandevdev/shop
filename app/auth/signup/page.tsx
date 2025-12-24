@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
@@ -52,9 +53,10 @@ export default function SignUpPage() {
       const result = await response.json();
 
       if (!result.success) {
-        setError(
-          result.error || "An error occurred while creating your account."
-        );
+        const errorMessage =
+          result.error || "An error occurred while creating your account.";
+        setError(errorMessage);
+        toast.error(errorMessage);
 
         // Set field-specific errors if available
         if (result.issues) {
@@ -68,10 +70,13 @@ export default function SignUpPage() {
         return;
       }
 
+      toast.success("Account created successfully! Please sign in.");
       router.push("/auth/signin");
     } catch (error) {
       console.error("Registration Error:", error);
-      setError("An error occurred while creating your account.");
+      const errorMessage = "An error occurred while creating your account.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

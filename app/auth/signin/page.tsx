@@ -23,6 +23,7 @@ import {
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
 
 const Signin = () => {
   const [error, setError] = useState<string | null>(null);
@@ -50,13 +51,15 @@ const Signin = () => {
     });
 
     if (result?.error) {
-      setError(
+      const errorMessage =
         result.error === "CredentialsSignin"
           ? "Invalid email or password"
-          : "An error occurred. Please try again."
-      );
+          : "An error occurred. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setIsLoading(false);
     } else if (result && !result.error) {
+      toast.success("Signed in successfully!");
       await updateSession();
       setIsLoading(false);
       router.push(callbackUrl);

@@ -4,12 +4,17 @@ import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const session = await auth();
+  const { pathname } = request.nextUrl;
 
-  // Add your middleware logic here
-  // For example, protect certain routes:
-  // if (!session && request.nextUrl.pathname.startsWith('/protected')) {
-  //   return NextResponse.redirect(new URL('/login', request.url));
-  // }
+  // Protect admin routes
+  if (pathname.startsWith('/admin')) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth/signin', request.url));
+    }
+    if (session.user.role !== 'admin') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
 
   return NextResponse.next();
 }
