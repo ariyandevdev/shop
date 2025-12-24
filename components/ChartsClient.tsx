@@ -101,19 +101,19 @@ export function ChartsClient({
   orderStatusData,
 }: ChartsClientProps) {
   return (
-    <div className="mt-8 space-y-6">
-      <h2 className="text-2xl font-bold">Analytics & Sales</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
+      <h2 className="text-xl sm:text-2xl font-bold">Analytics & Sales</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Sales Revenue Over Time */}
         <Card>
           <CardHeader>
             <CardTitle>Sales Revenue Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
               <AreaChart
                 data={salesRevenueData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: 0, bottom: 40 }}
               >
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -129,9 +129,11 @@ export function ChartsClient({
                   textAnchor="end"
                   height={60}
                   interval="preserveStartEnd"
+                  tick={{ fontSize: 10 }}
                 />
                 <YAxis
                   tickFormatter={(value) => `$${value.toLocaleString()}`}
+                  tick={{ fontSize: 10 }}
                 />
                 <Tooltip content={<CurrencyTooltip />} />
                 <Area
@@ -151,11 +153,11 @@ export function ChartsClient({
           <CardHeader>
             <CardTitle>Orders Count Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
               <LineChart
                 data={ordersCountData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: 0, bottom: 40 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
@@ -165,8 +167,9 @@ export function ChartsClient({
                   textAnchor="end"
                   height={60}
                   interval="preserveStartEnd"
+                  tick={{ fontSize: 10 }}
                 />
-                <YAxis />
+                <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip content={<CountTooltip />} />
                 <Legend />
                 <Line
@@ -186,23 +189,24 @@ export function ChartsClient({
           <CardHeader>
             <CardTitle>Top Selling Products</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
               <BarChart
                 data={topProductsData}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                margin={{ top: 5, right: 30, left: 0, bottom: 60 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
-                  type="number"
-                  tickFormatter={(value) => `$${value.toLocaleString()}`}
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  tick={{ fontSize: 10 }}
+                  interval={0}
                 />
                 <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={90}
-                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `$${value.toLocaleString()}`}
+                  tick={{ fontSize: 10 }}
                 />
                 <Tooltip
                   formatter={(value: number | undefined) =>
@@ -225,8 +229,8 @@ export function ChartsClient({
           <CardHeader>
             <CardTitle>Revenue by Category</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
               <PieChart>
                 <Pie
                   data={revenueByCategoryData as Array<Record<string, any>>}
@@ -237,7 +241,7 @@ export function ChartsClient({
                     const percent = entry.percent ?? 0;
                     return `${entry.name} ${(percent * 100).toFixed(0)}%`;
                   }}
-                  outerRadius={80}
+                  outerRadius={60}
                   fill="#8884d8"
                   dataKey="revenue"
                 >
@@ -268,8 +272,8 @@ export function ChartsClient({
           <CardHeader>
             <CardTitle>Order Status Distribution</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-3 sm:p-6">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
               <PieChart>
                 <Pie
                   data={orderStatusData as Array<Record<string, any>>}
@@ -280,7 +284,7 @@ export function ChartsClient({
                     const percent = entry.percent ?? 0;
                     return `${entry.name} ${(percent * 100).toFixed(0)}%`;
                   }}
-                  outerRadius={80}
+                  outerRadius={60}
                   fill="#8884d8"
                   dataKey="value"
                 >

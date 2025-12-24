@@ -98,10 +98,10 @@ export default async function AdminProductsPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Products</h1>
-        <Button asChild>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Products</h1>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/admin/products/new">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
@@ -110,8 +110,8 @@ export default async function AdminProductsPage({
       </div>
 
       {/* Search and Filters */}
-      <div className="flex gap-4 items-center">
-        <form action="/admin/products" method="get" className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+        <form action="/admin/products" method="get" className="flex-1 w-full">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
@@ -126,7 +126,7 @@ export default async function AdminProductsPage({
             {sort && <input type="hidden" name="sort" value={sort} />}
           </div>
         </form>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <FilterSelect
             name="category"
             defaultValue={category || ""}
@@ -140,7 +140,7 @@ export default async function AdminProductsPage({
             className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
           />
         </div>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <FilterSelect
             name="sort"
             defaultValue={sort || ""}
@@ -159,8 +159,8 @@ export default async function AdminProductsPage({
       </div>
 
       {/* Products Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
+      <div className="border rounded-lg overflow-x-auto">
+        <table className="w-full min-w-[640px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
@@ -189,36 +189,36 @@ export default async function AdminProductsPage({
             ) : (
               products.map((product) => (
                 <tr key={product.id} className="border-t hover:bg-muted/50">
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <div>
-                      <div className="font-medium">{product.name}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-md">
+                      <div className="font-medium text-sm sm:text-base">{product.name}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground truncate max-w-xs sm:max-w-md">
                         {product.description}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">{product.category.name}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3 text-sm">{product.category.name}</td>
+                  <td className="px-3 sm:px-4 py-3 text-sm">
                     ${Number(product.price).toFixed(2)}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <span
-                      className={
+                      className={`text-sm ${
                         product.inventory === 0
                           ? "text-destructive font-medium"
                           : product.inventory < 10
                           ? "text-orange-600 font-medium"
                           : ""
-                      }
+                      }`}
                     >
                       {product.inventory}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                  <td className="px-3 sm:px-4 py-3">
+                    <div className="flex gap-1 sm:gap-2">
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/admin/products/${product.id}`}>
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Link>
                       </Button>
                       <form action={handleDelete}>

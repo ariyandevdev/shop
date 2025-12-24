@@ -96,12 +96,12 @@ export default async function AdminOrdersPage({
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Orders</h1>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 sm:space-y-6">
+      <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
 
       {/* Search and Filters */}
-      <div className="flex gap-4 items-center">
-        <form action="/admin/orders" method="get" className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+        <form action="/admin/orders" method="get" className="flex-1 w-full">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
@@ -114,7 +114,7 @@ export default async function AdminOrdersPage({
             {sort && <input type="hidden" name="sort" value={sort} />}
           </div>
         </form>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <FilterSelect
             name="status"
             defaultValue={status || ""}
@@ -129,7 +129,7 @@ export default async function AdminOrdersPage({
             className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
           />
         </div>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <FilterSelect
             name="sort"
             defaultValue={sort || ""}
@@ -147,8 +147,8 @@ export default async function AdminOrdersPage({
       </div>
 
       {/* Orders Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
+      <div className="border rounded-lg overflow-x-auto">
+        <table className="w-full min-w-[800px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-medium">
@@ -183,31 +183,31 @@ export default async function AdminOrdersPage({
             ) : (
               orders.map((order) => (
                 <tr key={order.id} className="border-t hover:bg-muted/50">
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <Link
                       href={`/admin/orders/${order.id}`}
-                      className="text-primary hover:underline font-mono text-sm"
+                      className="text-primary hover:underline font-mono text-xs sm:text-sm"
                     >
                       {order.id.slice(0, 8)}...
                     </Link>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
                     {order.user?.name || order.user?.email || "Guest"}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 font-medium">
+                  <td className="px-3 sm:px-4 py-3 font-medium text-sm">
                     ${order.total.toFixed(2)}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <OrderStatusBadge status={order.status} />
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
                     {order.items.length} item{order.items.length !== 1 ? "s" : ""}
                   </td>
-                  <td className="px-4 py-3">
-                    <Button asChild variant="outline" size="sm">
+                  <td className="px-3 sm:px-4 py-3">
+                    <Button asChild variant="outline" size="sm" className="text-xs">
                       <Link href={`/admin/orders/${order.id}`}>View</Link>
                     </Button>
                   </td>

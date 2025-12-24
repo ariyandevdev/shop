@@ -109,12 +109,12 @@ export default async function AdminCommentsPage({
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Comments</h1>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 sm:space-y-6">
+      <h1 className="text-2xl sm:text-3xl font-bold">Comments</h1>
 
       {/* Search and Filters */}
-      <div className="flex gap-4 items-center">
-        <form action="/admin/comments" method="get" className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+        <form action="/admin/comments" method="get" className="flex-1 w-full">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
@@ -127,7 +127,7 @@ export default async function AdminCommentsPage({
             {sort && <input type="hidden" name="sort" value={sort} />}
           </div>
         </form>
-        <div className="w-64">
+        <div className="w-full sm:w-64">
           <FilterSelect
             name="product"
             defaultValue={product || ""}
@@ -141,7 +141,7 @@ export default async function AdminCommentsPage({
             className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
           />
         </div>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <FilterSelect
             name="sort"
             defaultValue={sort || ""}
@@ -155,8 +155,8 @@ export default async function AdminCommentsPage({
       </div>
 
       {/* Comments Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
+      <div className="border rounded-lg overflow-x-auto">
+        <table className="w-full min-w-[900px]">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-medium">
@@ -189,30 +189,32 @@ export default async function AdminCommentsPage({
             ) : (
               comments.map((comment) => (
                 <tr key={comment.id} className="border-t hover:bg-muted/50">
-                  <td className="px-4 py-3">
-                    <div className="max-w-md">
-                      <p className="text-sm line-clamp-2">{comment.content}</p>
+                  <td className="px-3 sm:px-4 py-3">
+                    <div className="max-w-xs sm:max-w-md">
+                      <p className="text-xs sm:text-sm line-clamp-2">
+                        {comment.content}
+                      </p>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium">
+                      <p className="text-xs sm:text-sm font-medium">
                         {comment.user.name || comment.user.email}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground truncate max-w-[120px]">
                         {comment.user.email}
                       </p>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-3">
                     <Link
                       href={`/product/${comment.product.slug}`}
-                      className="text-primary hover:underline text-sm"
+                      className="text-primary hover:underline text-xs sm:text-sm truncate block max-w-[150px]"
                     >
                       {comment.product.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">
