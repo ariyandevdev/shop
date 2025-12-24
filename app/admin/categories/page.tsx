@@ -91,9 +91,9 @@ export default async function AdminCategoriesPage({
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 sm:space-y-6">
+    <div className="space-y-6">
       <AdminErrorHandler />
-      <h1 className="text-2xl sm:text-3xl font-bold">Categories</h1>
+      <h1 className="text-3xl font-bold">Categories</h1>
 
       {/* Create Category Form */}
       <Card>
@@ -101,7 +101,7 @@ export default async function AdminCategoriesPage({
           <CardTitle>Create New Category</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={handleCreate} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <form action={handleCreate} className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="name" className="sr-only">
                 Category Name
@@ -113,7 +113,7 @@ export default async function AdminCategoriesPage({
                 placeholder="Enter category name"
               />
             </div>
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button type="submit">
               <Plus className="w-4 h-4 mr-2" />
               Create
             </Button>
@@ -133,8 +133,8 @@ export default async function AdminCategoriesPage({
       </form>
 
       {/* Categories List */}
-      <div className="border rounded-lg overflow-x-auto">
-        <table className="w-full min-w-[600px]">
+      <div className="border rounded-lg overflow-hidden">
+        <table className="w-full">
           <thead className="bg-muted">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
@@ -160,24 +160,24 @@ export default async function AdminCategoriesPage({
             ) : (
               categories.map((category) => (
                 <tr key={category.id} className="border-t hover:bg-muted/50">
-                  <td className="px-3 sm:px-4 py-3 font-medium text-sm sm:text-base">{category.name}</td>
-                  <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-muted-foreground font-mono">
+                  <td className="px-4 py-3 font-medium">{category.name}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground font-mono">
                     {category.slug}
                   </td>
-                  <td className="px-3 sm:px-4 py-3 text-sm">{category._count.products}</td>
-                  <td className="px-3 sm:px-4 py-3">
-                    <div className="flex flex-col sm:flex-row gap-2">
+                  <td className="px-4 py-3">{category._count.products}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
                       <form action={handleUpdate} className="inline">
                         <input type="hidden" name="id" value={category.id} />
                         <div className="flex gap-2">
                           <Input
                             name="name"
                             defaultValue={category.name}
-                            className="h-8 w-32 sm:w-48 text-sm"
+                            className="h-8 w-48"
                             required
                           />
                           <Button type="submit" variant="outline" size="sm">
-                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Edit className="w-4 h-4" />
                           </Button>
                         </div>
                       </form>

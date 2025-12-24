@@ -47,23 +47,21 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <h1 className="text-2xl sm:text-3xl font-bold">Dashboard Overview</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div>
+      <h1 className="text-3xl font-bold mb-8">Dashboard Overview</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card key={stat.label}>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between text-base sm:text-lg">
-                  <span className="truncate">{stat.label}</span>
-                  <Icon
-                    className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.color} shrink-0 ml-2`}
-                  />
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>{stat.label}</span>
+                  <Icon className={`w-5 h-5 ${stat.color}`} />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
               </CardContent>
             </Card>
           );
