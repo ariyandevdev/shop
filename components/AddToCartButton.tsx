@@ -6,6 +6,7 @@ import { useState } from "react";
 import { addToCart } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { handleError } from "@/lib/utils";
 
 interface AddToCartButtonProps {
   product: {
@@ -30,8 +31,8 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
       window.dispatchEvent(new Event("cartUpdated"));
       router.refresh();
     } catch (error) {
-      console.error("Failed to add to cart:", error);
-      toast.error("Failed to add item to cart. Please try again.");
+      const errorMessage = handleError(error, "Failed to add item to cart. Please try again.");
+      toast.error(errorMessage);
     } finally {
       setIsAdding(false);
     }

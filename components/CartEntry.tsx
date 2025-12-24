@@ -15,6 +15,7 @@ import {
 } from "@/lib/actions";
 import { Plus, Minus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { handleError } from "@/lib/utils";
 
 interface CartEntryProps {
   item: SerializedShoppingCart["items"][0];
@@ -34,8 +35,8 @@ export function CartEntry({ item }: CartEntryProps) {
       window.dispatchEvent(new Event("cartUpdated"));
       router.refresh();
     } catch (error) {
-      console.error("Failed to increment item:", error);
-      toast.error("Failed to update quantity. Please try again.");
+      const errorMessage = handleError(error, "Failed to update quantity. Please try again.");
+      toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }
@@ -48,8 +49,8 @@ export function CartEntry({ item }: CartEntryProps) {
       window.dispatchEvent(new Event("cartUpdated"));
       router.refresh();
     } catch (error) {
-      console.error("Failed to decrement item:", error);
-      toast.error("Failed to update quantity. Please try again.");
+      const errorMessage = handleError(error, "Failed to update quantity. Please try again.");
+      toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }
@@ -63,8 +64,8 @@ export function CartEntry({ item }: CartEntryProps) {
       window.dispatchEvent(new Event("cartUpdated"));
       router.refresh();
     } catch (error) {
-      console.error("Failed to remove item:", error);
-      toast.error("Failed to remove item. Please try again.");
+      const errorMessage = handleError(error, "Failed to remove item. Please try again.");
+      toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }

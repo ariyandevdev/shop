@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import toast from "react-hot-toast";
+import { handleError } from "@/lib/utils";
 
 interface CommentFormProps {
   productId: string;
@@ -46,10 +47,7 @@ const CommentForm = ({ productId }: CommentFormProps) => {
       form.reset();
       router.refresh();
     } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Failed to post comment. Please try again.";
+      const errorMessage = handleError(err, "Failed to post comment. Please try again.");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

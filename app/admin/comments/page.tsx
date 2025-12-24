@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { DeleteButton } from "@/components/DeleteButton";
 import { FilterSelect } from "@/components/FilterSelect";
+import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 
 type CommentsPageProps = {
@@ -167,6 +168,10 @@ export default async function AdminCommentsPage({
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
               <th className="px-4 py-3 text-left text-sm font-medium">
+                Sentiment
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Score</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">
                 Actions
               </th>
             </tr>
@@ -175,7 +180,7 @@ export default async function AdminCommentsPage({
             {comments.length === 0 ? (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={7}
                   className="px-4 py-8 text-center text-muted-foreground"
                 >
                   No comments found
@@ -209,6 +214,40 @@ export default async function AdminCommentsPage({
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {new Date(comment.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    {comment.sentiment && (
+                      <Badge
+                        variant={
+                          comment.sentiment === "positive"
+                            ? "default"
+                            : comment.sentiment === "negative"
+                            ? "destructive"
+                            : "secondary"
+                        }
+                      >
+                        {comment.sentiment.charAt(0).toUpperCase() +
+                          comment.sentiment.slice(1)}
+                      </Badge>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {comment.sentimentScore !== null &&
+                    comment.sentimentScore !== undefined ? (
+                      <Badge
+                        variant={
+                          comment.sentimentScore > 0
+                            ? "default"
+                            : comment.sentimentScore < 0
+                            ? "destructive"
+                            : "secondary"
+                        }
+                      >
+                        {comment.sentimentScore}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <form action={handleDelete}>

@@ -24,6 +24,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { handleError } from "@/lib/utils";
 
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
@@ -73,8 +74,7 @@ export default function SignUpPage() {
       toast.success("Account created successfully! Please sign in.");
       router.push("/auth/signin");
     } catch (error) {
-      console.error("Registration Error:", error);
-      const errorMessage = "An error occurred while creating your account.";
+      const errorMessage = handleError(error, "An error occurred while creating your account.");
       setError(errorMessage);
       toast.error(errorMessage);
     }
