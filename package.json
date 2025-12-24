@@ -33,6 +33,7 @@
     "react-dom": "19.2.0",
     "react-hook-form": "^7.68.0",
     "react-hot-toast": "^2.4.1",
+    "recharts": "^3.6.0",
     "sentiment": "^5.0.2",
     "stripe": "^20.0.0",
     "tailwind-merge": "^3.4.0",

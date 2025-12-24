@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
+import Charts from "@/components/Charts";
 
 export default async function AdminDashboard() {
   await requireAdmin();
@@ -66,6 +67,8 @@ export default async function AdminDashboard() {
           );
         })}
       </div>
+
+      <Charts />
     </div>
   );
 }
