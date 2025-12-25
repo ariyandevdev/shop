@@ -16,6 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import CommentsSection from "@/components/CommentsSection";
+import Script from "next/script";
 
 export async function generateMetadata({
   params,
@@ -109,8 +110,104 @@ const ProductPage = async ({
     cart?.items.find((item) => item.productId === product.id)?.quantity || 0;
   const availableInventory = Math.max(0, product.inventory - cartQuantity);
 
+  // Prepare product data for JSON-LD
+  const price =
+    typeof product.price === "object" && product.price !== null
+      ? Number(product.price)
+      : typeof product.price === "number"
+      ? product.price
+      : 0;
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const productUrl = `${baseUrl}/product/${slug}`;
+  const availability =
+    availableInventory > 0
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
+
+  // Build breadcrumb items for JSON-LD
+  const breadcrumbItems = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: baseUrl,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Products",
+      item: `${baseUrl}/products`,
+    },
+  ];
+
+  if (product.category) {
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      position: breadcrumbItems.length + 1,
+      name: product.category.name,
+      item: `${baseUrl}/search/${product.category.slug}`,
+    });
+  }
+
+  breadcrumbItems.push({
+    "@type": "ListItem",
+    position: breadcrumbItems.length + 1,
+    name: product.name,
+    item: productUrl,
+  });
+
+  // JSON-LD structured data - Product
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || `Buy ${product.name} at great prices.`,
+    image: product.image ? [product.image] : [],
+    sku: product.id,
+    mpn: product.id,
+    brand: {
+      "@type": "Brand",
+      name: "Shop",
+    },
+    offers: {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "USD",
+      price: price.toString(),
+      priceValidUntil: new Date(
+        Date.now() + 365 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      availability: availability,
+      itemCondition: "https://schema.org/NewCondition",
+      seller: {
+        "@type": "Organization",
+        name: "Shop",
+      },
+    },
+    ...(product.category && { category: product.category.name }),
+  };
+
+  // JSON-LD structured data - BreadcrumbList
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems,
+  };
+
   return (
-    <main className="container mx-auto py-4">
+    <>
+      <Script
+        id="product-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <Script
+        id="breadcrumb-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <main className="container mx-auto py-4">
       <Breadcrumb className="mb-6 px-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -216,6 +313,7 @@ const ProductPage = async ({
       </Card>
       <CommentsSection productId={product.id} />
     </main>
+    </>
   );
 };
 

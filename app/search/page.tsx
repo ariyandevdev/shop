@@ -3,6 +3,30 @@ import { Suspense } from "react";
 import ProductsSkeleton from "../ProductsSkeleton";
 import { ProductList } from "@/components/ProductList";
 import { SortButtons } from "@/components/SortButtons";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const query = params.query?.trim() ?? "";
+
+  if (query) {
+    return {
+      title: `Search Results for "${query}" - Shop`,
+      description: `Find products matching "${query}". Browse search results and find what you're looking for.`,
+      keywords: [query, "search", "products", "shop"],
+    };
+  }
+
+  return {
+    title: "Search Products - Shop",
+    description: "Search for products by name, category, or description. Find exactly what you're looking for.",
+    keywords: ["search", "products", "shop", "find products"],
+  };
+}
 
 type SearchPageProps = {
   searchParams: Promise<{ query?: string; sort?: string }>;

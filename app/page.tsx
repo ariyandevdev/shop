@@ -4,6 +4,28 @@ import { HeroSlider } from "@/components/HeroSlider";
 import { prisma } from "@/lib/prisma";
 import { getActiveSliders } from "@/lib/actions";
 import { Product } from "@prisma/client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home - Shop | Your Online Store",
+  description:
+    "Browse our amazing collection of products. Find the best deals and quality items for your needs.",
+  keywords: ["shop", "online store", "products", "ecommerce", "shopping"],
+  openGraph: {
+    title: "Shop - Your Online Store",
+    description:
+      "Browse our amazing collection of products. Find the best deals and quality items for your needs.",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shop - Your Online Store",
+    description:
+      "Browse our amazing collection of products. Find the best deals and quality items for your needs.",
+  },
+};
+
 interface HomeProps {
   searchParams:
     | Promise<{

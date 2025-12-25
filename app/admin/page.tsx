@@ -3,6 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
 import Charts from "@/components/Charts";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard - Shop",
+  description: "Admin dashboard for managing products, orders, users, and store analytics.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AdminDashboard() {
   await requireAdmin();

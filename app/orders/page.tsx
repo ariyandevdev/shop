@@ -16,6 +16,16 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Package } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My Orders - Shop",
+  description: "View and track all your orders. Check order status, details, and history.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface OrdersPageProps {
   searchParams: Promise<{

@@ -5,6 +5,40 @@ import { ProductList } from "@/components/ProductList";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SortButtons } from "@/components/SortButtons";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      slug: true,
+    },
+  });
+
+  if (!category) {
+    return {
+      title: "Category Not Found - Shop",
+      description: "The category you are looking for could not be found.",
+    };
+  }
+
+  return {
+    title: `${category.name} - Shop`,
+    description: `Browse products in the ${category.name} category. Find the best ${category.name.toLowerCase()} products.`,
+    keywords: [category.name, "products", "category", "shop", category.slug],
+    openGraph: {
+      title: `${category.name} - Shop`,
+      description: `Browse products in the ${category.name} category.`,
+      type: "website",
+    },
+  };
+}
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;

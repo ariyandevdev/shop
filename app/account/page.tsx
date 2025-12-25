@@ -8,6 +8,16 @@ import Link from "next/link";
 import { Package } from "lucide-react";
 import { ProfileForm } from "./ProfileForm";
 import { PasswordForm } from "./PasswordForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My Account - Shop",
+  description: "Manage your account settings, profile information, and password. View your order history and account details.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AccountPage() {
   const session = await auth();

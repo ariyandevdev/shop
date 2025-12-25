@@ -12,6 +12,18 @@ import { ProductFilters } from "@/components/ProductFilters";
 import { ProductList } from "@/components/ProductList";
 import { SortButtons } from "@/components/SortButtons";
 import ProductsSkeleton from "../ProductsSkeleton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Products - Shop | Browse All Products",
+  description: "Browse our complete catalog of products. Filter by category, price, and availability to find exactly what you're looking for.",
+  keywords: ["products", "catalog", "shop", "online store", "browse products", "shopping"],
+  openGraph: {
+    title: "Products - Shop",
+    description: "Browse our complete catalog of products. Filter by category, price, and availability to find exactly what you're looking for.",
+    type: "website",
+  },
+};
 
 type ProductsPageProps = {
   searchParams: Promise<{

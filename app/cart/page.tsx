@@ -7,6 +7,16 @@ import { Button } from "@/components/ui/button";
 import { ProcessCheckout } from "@/lib/orders";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shopping Cart - Shop",
+  description: "Review your shopping cart items and proceed to checkout. Manage quantities and remove items as needed.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 async function handleCheckout() {
   "use server";

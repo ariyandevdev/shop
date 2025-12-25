@@ -18,8 +18,57 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shop - Your Online Store",
-  description: "Browse our amazing collection of products",
+  title: {
+    default: "Shop - Your Online Store",
+    template: "%s | Shop",
+  },
+  description:
+    "Browse our amazing collection of products. Find the best deals and quality items for your needs.",
+  keywords: [
+    "shop",
+    "online store",
+    "ecommerce",
+    "products",
+    "shopping",
+    "buy online",
+  ],
+  authors: [{ name: "Shop Team" }],
+  creator: "Shop",
+  publisher: "Shop",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+  ),
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "Shop",
+    title: "Shop - Your Online Store",
+    description:
+      "Browse our amazing collection of products. Find the best deals and quality items for your needs.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shop - Your Online Store",
+    description:
+      "Browse our amazing collection of products. Find the best deals and quality items for your needs.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: "your-google-verification-code",
+    // yandex: "your-yandex-verification-code",
+  },
 };
 
 export default function RootLayout({

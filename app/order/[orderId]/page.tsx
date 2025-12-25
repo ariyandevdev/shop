@@ -7,6 +7,73 @@ import { formatPrice } from "@/lib/utils";
 import { OrderItems } from "./OrderItems";
 import { OrderSummary } from "./OrderSummary";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}): Promise<Metadata> {
+  const session = await auth();
+  const { orderId } = await params;
+
+  if (!session?.user?.id) {
+    return {
+      title: "Order Details - Shop",
+      description: "View your order details",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return {
+      title: "Order Not Found - Shop",
+      description: "The order you are looking for could not be found.",
+    };
+  }
+
+  // Check if user owns this order or is an admin
+  const isOwner = order.userId === session.user.id;
+  const isAdmin = session.user.role === "admin";
+
+  if (!isOwner && !isAdmin) {
+    return {
+      title: "Order Not Found - Shop",
+      description: "The order you are looking for could not be found.",
+    };
+  }
+
+  const itemsCount = order.items.length;
+  const total = formatPrice(order.total);
+
+  return {
+    title: `Order ${orderId.slice(0, 8).toUpperCase()} - Shop`,
+    description: `Order details: ${itemsCount} item${itemsCount !== 1 ? "s" : ""}, Total: ${total}, Status: ${order.status}`,
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
+}
 
 interface OrderPageProps {
   params: Promise<{
