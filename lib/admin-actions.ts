@@ -423,3 +423,133 @@ export async function deleteComment(commentId: string) {
     };
   }
 }
+
+// Slider schemas
+const SliderSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  image: z.string().url("Image must be a valid URL"),
+  link: z
+    .union([z.string().url("Link must be a valid URL"), z.literal("")])
+    .optional(),
+  buttonText: z.string().optional(),
+  order: z.number().int().min(0, "Order must be non-negative"),
+  isActive: z.boolean().default(true),
+});
+
+const UpdateSliderSchema = SliderSchema.extend({
+  id: z.string().uuid(),
+});
+
+// Slider Actions
+export async function createSlider(data: z.infer<typeof SliderSchema>) {
+  await requireAdmin();
+
+  const validationResult = SliderSchema.safeParse(data);
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: "Validation failed",
+      issues: validationResult.error.flatten().fieldErrors,
+    };
+  }
+
+  const validated = validationResult.data;
+
+  try {
+    const slider = await prisma.slider.create({
+      data: {
+        title: validated.title,
+        description: validated.description,
+        image: validated.image,
+        link: validated.link && validated.link !== "" ? validated.link : null,
+        buttonText: validated.buttonText || null,
+        order: validated.order,
+        isActive: validated.isActive,
+      },
+    });
+
+    revalidatePath("/admin/sliders");
+    revalidatePath("/");
+
+    return { success: true, slider };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: "Failed to create slider",
+    };
+  }
+}
+
+export async function updateSlider(data: z.infer<typeof UpdateSliderSchema>) {
+  await requireAdmin();
+
+  const validationResult = UpdateSliderSchema.safeParse(data);
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: "Validation failed",
+      issues: validationResult.error.flatten().fieldErrors,
+    };
+  }
+
+  const { id, ...updateData } = validationResult.data;
+
+  try {
+    const slider = await prisma.slider.update({
+      where: { id },
+      data: {
+        title: updateData.title,
+        description: updateData.description,
+        image: updateData.image,
+        link: updateData.link && updateData.link !== "" ? updateData.link : null,
+        buttonText: updateData.buttonText || null,
+        order: updateData.order,
+        isActive: updateData.isActive,
+      },
+    });
+
+    revalidatePath("/admin/sliders");
+    revalidatePath(`/admin/sliders/${id}`);
+    revalidatePath("/");
+
+    return { success: true, slider };
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return {
+        success: false,
+        error: "Slider not found",
+      };
+    }
+    return {
+      success: false,
+      error: "Failed to update slider",
+    };
+  }
+}
+
+export async function deleteSlider(sliderId: string) {
+  await requireAdmin();
+
+  try {
+    await prisma.slider.delete({
+      where: { id: sliderId },
+    });
+
+    revalidatePath("/admin/sliders");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return {
+        success: false,
+        error: "Slider not found",
+      };
+    }
+    return {
+      success: false,
+      error: "Failed to delete slider",
+    };
+  }
+}

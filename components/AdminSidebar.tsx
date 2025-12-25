@@ -9,6 +9,7 @@ import {
   Users,
   MessageSquare,
   Tag,
+  Image,
 } from "lucide-react";
 
 const navItems = [
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/categories", label: "Categories", icon: Tag },
   { href: "/admin/comments", label: "Comments", icon: MessageSquare },
+  { href: "/admin/sliders", label: "Sliders", icon: Image },
 ];
 
 export function AdminSidebar() {

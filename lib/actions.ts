@@ -26,6 +26,18 @@ export async function getCategories() {
   return categories;
 }
 
+export async function getActiveSliders() {
+  const sliders = await prisma.slider.findMany({
+    where: {
+      isActive: true,
+    },
+    orderBy: {
+      order: "asc",
+    },
+  });
+  return sliders;
+}
+
 export type CartWithProducts = Prisma.CartGetPayload<{
   include: {
     items: {

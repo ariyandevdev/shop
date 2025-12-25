@@ -101,3 +101,16 @@ model Comment{
   sentiment String? @default("neutral")
   sentimentScore Int? @default(0)
 }
+
+model Slider {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  image       String
+  link        String?
+  buttonText  String?
+  order       Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
