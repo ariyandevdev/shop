@@ -1,11 +1,18 @@
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
-import { updateOrderStatus } from "@/lib/admin-actions";
+import {
+  updateOrderStatus,
+  updateOrderTracking,
+  createOrderNote,
+} from "@/lib/admin-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Package, MessageSquare, Truck, Clock } from "lucide-react";
 import { notFound } from "next/navigation";
 import { redirect } from "next/navigation";
 import { AdminErrorHandler } from "@/components/AdminErrorHandler";
@@ -34,6 +41,18 @@ export default async function AdminOrderDetailPage({
           name: true,
         },
       },
+      notes: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          order: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -55,6 +74,46 @@ export default async function AdminOrderDetailPage({
       redirect(
         `/admin/orders/${id}?error=${encodeURIComponent(
           result.error || "Failed to update status"
+        )}`
+      );
+    }
+  }
+
+  async function handleTrackingUpdate(formData: FormData) {
+    "use server";
+    const trackingNumber = formData.get("trackingNumber") as string;
+    const result = await updateOrderTracking({
+      orderId: id,
+      trackingNumber: trackingNumber || undefined,
+    });
+
+    if (result.success) {
+      redirect(
+        `/admin/orders/${id}?success=Tracking number updated successfully`
+      );
+    } else {
+      redirect(
+        `/admin/orders/${id}?error=${encodeURIComponent(
+          result.error || "Failed to update tracking"
+        )}`
+      );
+    }
+  }
+
+  async function handleAddNote(formData: FormData) {
+    "use server";
+    const content = formData.get("content") as string;
+    const result = await createOrderNote({
+      orderId: id,
+      content,
+    });
+
+    if (result.success) {
+      redirect(`/admin/orders/${id}?success=Note added successfully`);
+    } else {
+      redirect(
+        `/admin/orders/${id}?error=${encodeURIComponent(
+          result.error || "Failed to add note"
         )}`
       );
     }
@@ -124,35 +183,158 @@ export default async function AdminOrderDetailPage({
         </CardContent>
       </Card>
 
-      {/* Status Update */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Status Update */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Update Order Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={handleStatusUpdate} className="space-y-4">
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <select
+                  id="status"
+                  name="status"
+                  defaultValue={order.status}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm mt-1"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <Button type="submit" className="w-full">
+                Update Status
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Tracking Number */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="w-5 h-5" />
+              Shipping Tracking
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={handleTrackingUpdate} className="space-y-4">
+              <div>
+                <Label htmlFor="trackingNumber">Tracking Number</Label>
+                <Input
+                  id="trackingNumber"
+                  name="trackingNumber"
+                  defaultValue={order.trackingNumber || ""}
+                  placeholder="Enter tracking number"
+                  className="mt-1"
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Update Tracking
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Order Timeline */}
       <Card>
         <CardHeader>
-          <CardTitle>Update Order Status</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Order Timeline
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={handleStatusUpdate} className="flex gap-4 items-end">
-            <div className="flex-1">
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium mb-2"
-              >
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                defaultValue={order.status}
-                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-              >
-                <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="flex flex-col items-center">
+                <div className="w-3 h-3 rounded-full bg-green-600"></div>
+                <div className="w-px h-full bg-border mt-2"></div>
+              </div>
+              <div className="flex-1 pb-4">
+                <p className="font-medium">Order Created</p>
+                <p className="text-sm text-muted-foreground">
+                  {formatDate(order.createdAt)}
+                </p>
+              </div>
             </div>
-            <Button type="submit">Update Status</Button>
+            {order.status !== "pending" && (
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                  <div className="w-px h-full bg-border mt-2"></div>
+                </div>
+                <div className="flex-1 pb-4">
+                  <p className="font-medium">Status: {order.status}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Last updated: {formatDate(order.updatedAt)}
+                  </p>
+                </div>
+              </div>
+            )}
+            {order.trackingNumber && (
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 rounded-full bg-purple-600"></div>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Tracking Number Added</p>
+                  <p className="text-sm text-muted-foreground">
+                    {order.trackingNumber}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Order Notes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            Order Notes
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form action={handleAddNote} className="space-y-2">
+            <div>
+              <Label htmlFor="note">Add Note</Label>
+              <Textarea
+                id="note"
+                name="content"
+                placeholder="Add an internal note about this order..."
+                rows={3}
+                className="mt-1"
+                required
+              />
+            </div>
+            <Button type="submit" size="sm">
+              Add Note
+            </Button>
           </form>
+
+          {order.notes.length > 0 && (
+            <div className="space-y-3 pt-4 border-t">
+              {order.notes.map((note) => (
+                <div key={note.id} className="p-3 rounded border bg-muted/50">
+                  <p className="text-sm whitespace-pre-wrap">{note.content}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {formatDate(note.createdAt)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

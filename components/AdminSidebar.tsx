@@ -10,16 +10,26 @@ import {
   MessageSquare,
   Tag,
   Image,
+  Warehouse,
+  BarChart3,
+  History,
+  Settings,
+  Bell,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/inventory", label: "Inventory", icon: Warehouse },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/categories", label: "Categories", icon: Tag },
   { href: "/admin/comments", label: "Comments", icon: MessageSquare },
   { href: "/admin/sliders", label: "Sliders", icon: Image },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin/activity", label: "Activity Logs", icon: History },
+  { href: "/admin/notifications", label: "Notifications", icon: Bell },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export function AdminSidebar() {

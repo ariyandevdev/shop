@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
 import Charts from "@/components/Charts";
+import { InventoryAlerts } from "@/components/InventoryAlerts";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -78,7 +79,13 @@ export default async function AdminDashboard() {
         })}
       </div>
 
-      <Charts />
+      <div className="mt-8">
+        <InventoryAlerts />
+      </div>
+
+      <div className="mt-8">
+        <Charts />
+      </div>
     </div>
   );
 }

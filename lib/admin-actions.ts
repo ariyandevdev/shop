@@ -4,6 +4,8 @@ import { requireAdmin } from "./admin";
 import { prisma } from "./prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { logActivity } from "./activity-log";
+import { auth } from "./auth";
 
 // Product schemas
 const ProductSchema = z.object({
@@ -91,6 +93,10 @@ export async function createProduct(data: z.infer<typeof ProductSchema>) {
     revalidatePath("/products");
     revalidatePath("/");
 
+    await logActivity("create_product", "product", product.id, {
+      name: product.name,
+    });
+
     return { success: true, product };
   } catch (error: any) {
     if (error.code === "P2002") {
@@ -137,6 +143,8 @@ export async function updateProduct(data: z.infer<typeof UpdateProductSchema>) {
     revalidatePath("/products");
     revalidatePath("/");
 
+    await logActivity("update_product", "product", id, updateData);
+
     return { success: true, product };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -169,6 +177,8 @@ export async function deleteProduct(productId: string) {
     revalidatePath("/admin/products");
     revalidatePath("/products");
     revalidatePath("/");
+
+    await logActivity("delete_product", "product", productId);
 
     return { success: true };
   } catch (error: any) {
@@ -211,6 +221,10 @@ export async function createCategory(data: z.infer<typeof CategorySchema>) {
 
     revalidatePath("/admin/categories");
     revalidatePath("/products");
+
+    await logActivity("create_category", "category", category.id, {
+      name: category.name,
+    });
 
     return { success: true, category };
   } catch (error: any) {
@@ -257,6 +271,8 @@ export async function updateCategory(
     revalidatePath("/admin/categories");
     revalidatePath("/products");
 
+    await logActivity("update_category", "category", id, updateData);
+
     return { success: true, category };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -301,6 +317,8 @@ export async function deleteCategory(categoryId: string) {
     revalidatePath("/admin/categories");
     revalidatePath("/products");
 
+    await logActivity("delete_category", "category", categoryId);
+
     return { success: true };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -343,6 +361,8 @@ export async function updateOrderStatus(
     revalidatePath(`/admin/orders/${orderId}`);
     revalidatePath("/orders");
 
+    await logActivity("update_order_status", "order", orderId, { status });
+
     return { success: true };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -383,6 +403,8 @@ export async function updateUserRole(
 
     revalidatePath("/admin/users");
 
+    await logActivity("update_user_role", "user", userId, { role });
+
     return { success: true };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -408,6 +430,8 @@ export async function deleteComment(commentId: string) {
     });
 
     revalidatePath("/admin/comments");
+
+    await logActivity("delete_comment", "comment", commentId);
 
     return { success: true };
   } catch (error: any) {
@@ -472,6 +496,10 @@ export async function createSlider(data: z.infer<typeof SliderSchema>) {
     revalidatePath("/admin/sliders");
     revalidatePath("/");
 
+    await logActivity("create_slider", "slider", slider.id, {
+      title: slider.title,
+    });
+
     return { success: true, slider };
   } catch (error: any) {
     return {
@@ -513,6 +541,8 @@ export async function updateSlider(data: z.infer<typeof UpdateSliderSchema>) {
     revalidatePath(`/admin/sliders/${id}`);
     revalidatePath("/");
 
+    await logActivity("update_slider", "slider", id, updateData);
+
     return { success: true, slider };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -539,6 +569,8 @@ export async function deleteSlider(sliderId: string) {
     revalidatePath("/admin/sliders");
     revalidatePath("/");
 
+    await logActivity("delete_slider", "slider", sliderId);
+
     return { success: true };
   } catch (error: any) {
     if (error.code === "P2025") {
@@ -550,6 +582,83 @@ export async function deleteSlider(sliderId: string) {
     return {
       success: false,
       error: "Failed to delete slider",
+    };
+  }
+}
+
+// Bulk Operations
+export async function bulkDeleteProducts(productIds: string[]) {
+  await requireAdmin();
+
+  try {
+    await prisma.product.deleteMany({
+      where: {
+        id: {
+          in: productIds,
+        },
+      },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    // Log bulk delete
+    for (const productId of productIds) {
+      await logActivity("delete_product", "product", productId);
+    }
+
+    return { success: true, deleted: productIds.length };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: "Failed to delete products",
+    };
+  }
+}
+
+export async function bulkUpdateOrderStatus(
+  orderIds: string[],
+  status: string
+) {
+  await requireAdmin();
+
+  const validationResult = UpdateOrderStatusSchema.pick({
+    status: true,
+  }).safeParse({ status });
+
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: "Invalid status",
+    };
+  }
+
+  try {
+    await prisma.order.updateMany({
+      where: {
+        id: {
+          in: orderIds,
+        },
+      },
+      data: {
+        status: validationResult.data.status,
+      },
+    });
+
+    revalidatePath("/admin/orders");
+    revalidatePath("/orders");
+
+    // Log bulk status update
+    for (const orderId of orderIds) {
+      await logActivity("update_order_status", "order", orderId, { status });
+    }
+
+    return { success: true, updated: orderIds.length };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: "Failed to update order status",
     };
   }
 }

@@ -61,8 +61,10 @@ model Order {
   stripePaymentIntentId String?
   stripeSessionId       String?
   userId                String?
+  trackingNumber        String?
   user                  User?       @relation(fields: [userId], references: [id])
   items                 OrderItem[]
+  notes                 OrderNote[]
 }
 
 model OrderItem {
@@ -87,6 +89,7 @@ model User {
   name      String?
   orders    Order[] 
   comments  Comment[]
+  activityLogs ActivityLog[]
 }
 
 model Comment{
@@ -113,4 +116,38 @@ model Slider {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String   // "create_product", "update_order", etc.
+  entityType String  // "product", "order", "user", etc.
+  entityId  String
+  details   Json?    // Store change details
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Settings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+model OrderNote {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  createdBy String?  // User ID who created the note
+
+  @@index([orderId])
 }

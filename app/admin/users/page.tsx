@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { RoleSelect } from "@/components/RoleSelect";
 import { FilterSelect } from "@/components/FilterSelect";
 import { AdminErrorHandler } from "@/components/AdminErrorHandler";
+import { ExportButton } from "@/components/ExportButton";
 
 type UsersPageProps = {
   searchParams: Promise<{
@@ -106,7 +107,13 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
   return (
     <div className="space-y-6">
       <AdminErrorHandler />
-      <h1 className="text-3xl font-bold">Users</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Users</h1>
+        <div className="flex gap-2">
+          <ExportButton exportType="users" format="csv" />
+          <ExportButton exportType="users" format="excel" />
+        </div>
+      </div>
 
       {/* Search and Filters */}
       <div className="flex gap-4 items-center">

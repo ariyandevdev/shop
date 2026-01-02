@@ -8,6 +8,8 @@ import { DeleteButton } from "@/components/DeleteButton";
 import { FilterSelect } from "@/components/FilterSelect";
 import { deleteProduct } from "@/lib/admin-actions";
 import { redirect } from "next/navigation";
+import { ExportButton } from "@/components/ExportButton";
+import { ProductsTableClient } from "@/components/ProductsTableClient";
 
 type ProductsPageProps = {
   searchParams: Promise<{
@@ -88,25 +90,33 @@ export default async function AdminProductsPage({
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  async function handleDelete(formData: FormData) {
+  async function handleBulkDelete(ids: string[]) {
     "use server";
-    const productId = formData.get("productId") as string;
-    if (productId) {
-      await deleteProduct(productId);
-      redirect("/admin/products");
-    }
+    const { bulkDeleteProducts } = await import("@/lib/admin-actions");
+    await bulkDeleteProducts(ids);
+    redirect("/admin/products?success=Bulk delete completed");
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Products</h1>
-        <Button asChild>
-          <Link href="/admin/products/new">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Product
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <ExportButton exportType="products" format="csv" />
+          <ExportButton exportType="products" format="excel" />
+          <Button asChild variant="outline">
+            <Link href="/admin/products/import">
+              <Plus className="w-4 h-4 mr-2" />
+              Import
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/admin/products/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -159,86 +169,17 @@ export default async function AdminProductsPage({
       </div>
 
       {/* Products Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Category
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Inventory
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-8 text-center text-muted-foreground"
-                >
-                  No products found
-                </td>
-              </tr>
-            ) : (
-              products.map((product) => (
-                <tr key={product.id} className="border-t hover:bg-muted/50">
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">{product.name}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-md">
-                        {product.description}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">{product.category.name}</td>
-                  <td className="px-4 py-3">
-                    ${Number(product.price).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        product.inventory === 0
-                          ? "text-destructive font-medium"
-                          : product.inventory < 10
-                          ? "text-orange-600 font-medium"
-                          : ""
-                      }
-                    >
-                      {product.inventory}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/admin/products/${product.id}`}>
-                          <Edit className="w-4 h-4" />
-                        </Link>
-                      </Button>
-                      <form action={handleDelete}>
-                        <input
-                          type="hidden"
-                          name="productId"
-                          value={product.id}
-                        />
-                        <DeleteButton
-                          confirmMessage={`Are you sure you want to delete "${product.name}"?`}
-                        />
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ProductsTableClient
+        products={products.map((p) => ({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          price: Number(p.price),
+          inventory: p.inventory,
+          category: { name: p.category.name },
+        }))}
+        onBulkDelete={handleBulkDelete}
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (

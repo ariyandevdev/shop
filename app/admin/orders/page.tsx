@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { OrderStatusBadge } from "@/components/OrderStatusBadge";
 import { FilterSelect } from "@/components/FilterSelect";
+import { ExportButton } from "@/components/ExportButton";
+import { OrdersTableClient } from "@/components/OrdersTableClient";
 
 type OrdersPageProps = {
   searchParams: Promise<{
@@ -95,9 +97,30 @@ export default async function AdminOrdersPage({
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
+  async function handleBulkStatusUpdate(ids: string[], status: string) {
+    "use server";
+    const { bulkUpdateOrderStatus } = await import("@/lib/admin-actions");
+    await bulkUpdateOrderStatus(ids, status);
+    redirect("/admin/orders?success=Bulk status update completed");
+  }
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Orders</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Orders</h1>
+        <div className="flex gap-2">
+          <ExportButton
+            exportType="orders"
+            format="csv"
+            filters={{ status }}
+          />
+          <ExportButton
+            exportType="orders"
+            format="excel"
+            filters={{ status }}
+          />
+        </div>
+      </div>
 
       {/* Search and Filters */}
       <div className="flex gap-4 items-center">
@@ -147,75 +170,17 @@ export default async function AdminOrdersPage({
       </div>
 
       {/* Orders Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Order ID
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Customer
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Total</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Items</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-8 text-center text-muted-foreground"
-                >
-                  No orders found
-                </td>
-              </tr>
-            ) : (
-              orders.map((order) => (
-                <tr key={order.id} className="border-t hover:bg-muted/50">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/orders/${order.id}`}
-                      className="text-primary hover:underline font-mono text-sm"
-                    >
-                      {order.id.slice(0, 8)}...
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    {order.user?.name || order.user?.email || "Guest"}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 font-medium">
-                    ${order.total.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <OrderStatusBadge status={order.status} />
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {order.items.length} item
-                    {order.items.length !== 1 ? "s" : ""}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/orders/${order.id}`}>View</Link>
-                    </Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <OrdersTableClient
+        orders={orders.map((o) => ({
+          id: o.id,
+          status: o.status,
+          total: o.total,
+          createdAt: o.createdAt,
+          user: o.user,
+          items: o.items,
+        }))}
+        onBulkStatusUpdate={handleBulkStatusUpdate}
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (
