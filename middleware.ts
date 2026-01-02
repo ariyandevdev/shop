@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect admin routes
   if (pathname.startsWith('/admin')) {
-    if (!session) {
+    if (!session || !session.user) {
       return NextResponse.redirect(new URL('/auth/signin', request.url));
     }
     if (session.user.role !== 'admin') {
