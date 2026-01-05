@@ -135,16 +135,16 @@ The admin dashboard currently has:
 
 - Add `ActivityLog` model to `prisma/schema.prisma`:
   ```prisma
-      model ActivityLog {
-        id        String   @id @default(uuid())
-        userId    String
-        user      User     @relation(fields: [userId], references: [id])
-        action    String   // "create_product", "update_order", etc.
-        entityType String  // "product", "order", "user", etc.
-        entityId  String
-        details   Json?    // Store change details
-        createdAt DateTime @default(now())
-      }
+        model ActivityLog {
+          id        String   @id @default(uuid())
+          userId    String
+          user      User     @relation(fields: [userId], references: [id])
+          action    String   // "create_product", "update_order", etc.
+          entityType String  // "product", "order", "user", etc.
+          entityId  String
+          details   Json?    // Store change details
+          createdAt DateTime @default(now())
+        }
   ```
 
 
@@ -255,4 +255,3 @@ The admin dashboard currently has:
 - `app/admin/page.tsx` - Add inventory alerts widget
 - `app/admin/products/page.tsx` - Add bulk operations
 - `app/admin/orders/page.tsx` - Add bulk operations
-- `lib/admin-actions.ts` - Add new server actions
